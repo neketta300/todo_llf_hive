@@ -19,7 +19,7 @@ class GroupsWidgetModel extends ChangeNotifier {
     final box = await Hive.openBox<Group>('groups_box');
     final groupKey = box.keyAt(groupIndex) as int;
 
-    Navigator.of(context).pushNamed('/groups/form/tasks', arguments: groupKey);
+    Navigator.of(context).pushNamed('/groups/tasks', arguments: groupKey);
   }
 
   //void Function()? onTap
