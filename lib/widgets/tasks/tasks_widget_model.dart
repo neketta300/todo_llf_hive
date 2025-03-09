@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:llf_todo_app/domain/entity/group.dart';
+import 'package:llf_todo_app/domain/entity/task.dart';
 
 class TasksWidgetModel extends ChangeNotifier {
   int groupKey;
   late final Future<Box<Group>> _groupBox;
+  var _tasks = <Task>[];
+
+  List<Task> get tasks => _tasks.toList();
 
   Group? _group;
   Group? get group => _group;
@@ -13,18 +18,43 @@ class TasksWidgetModel extends ChangeNotifier {
     _setup();
   }
 
+  void showForm(BuildContext context) {
+    Navigator.of(context).pushNamed('/groups/tasks/form', arguments: groupKey);
+  }
+
   void _loadGroup() async {
     final box = await _groupBox;
     _group = box.get(groupKey);
     notifyListeners();
   }
 
+  void _readTasks() {
+    _tasks = _group?.tasks ?? <Task>[];
+    notifyListeners();
+  }
+
+  void _setupListenTasks() async {
+    final box = await _groupBox;
+    _readTasks();
+    box.listenable(keys: <dynamic>[groupKey]).addListener(_readTasks);
+  }
+
+  void deleteTask(int taskIndex) async {
+    await _group?.tasks?.deleteFromHive(taskIndex);
+    await _group?.save();
+  }
+
   void _setup() {
     if (!Hive.isAdapterRegistered(1)) {
       Hive.registerAdapter(GroupAdapter());
     }
+    if (!Hive.isAdapterRegistered(2)) {
+      Hive.registerAdapter(TaskAdapter());
+    }
     _groupBox = Hive.openBox<Group>('groups_box');
+    Hive.openBox<Task>('tasks_box');
     _loadGroup();
+    _setupListenTasks();
   }
 }
 
