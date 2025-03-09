@@ -18,7 +18,7 @@ class GroupAdapter extends TypeAdapter<Group> {
     };
     return Group(
       name: fields[0] as String,
-    )..task = (fields[1] as HiveList?)?.castHiveList();
+    )..tasks = (fields[1] as HiveList?)?.castHiveList();
   }
 
   @override
@@ -28,7 +28,7 @@ class GroupAdapter extends TypeAdapter<Group> {
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
-      ..write(obj.task);
+      ..write(obj.tasks);
   }
 
   @override

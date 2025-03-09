@@ -23,8 +23,8 @@ class MyApp extends StatelessWidget {
       routes: {
         '/groups': (context) => const GroupsWidget(),
         '/groups/form': (context) => const GroupFormWidget(),
-        '/groups/form/tasks': (context) => const TasksWidget(),
-        '/groups/form/tasks/form': (context) => const TaskFormWidget(),
+        '/groups/tasks': (context) => const TasksWidget(),
+        '/groups/tasks/form': (context) => const TaskFormWidget(),
       },
       initialRoute: '/groups',
       theme: ThemeData(
