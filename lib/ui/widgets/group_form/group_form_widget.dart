@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:llf_todo_app/widgets/group_form/group_form_widget_model.dart';
+import 'package:llf_todo_app/ui/widgets/group_form/group_form_widget_model.dart';
 
 class GroupFormWidget extends StatefulWidget {
-  const GroupFormWidget({super.key});
+  const GroupFormWidget({Key? key}) : super(key: key);
 
   @override
-  State<GroupFormWidget> createState() => _GroupFormWidgetState();
+  _GroupFormWidgetState createState() => _GroupFormWidgetState();
 }
 
 class _GroupFormWidgetState extends State<GroupFormWidget> {
@@ -15,41 +15,40 @@ class _GroupFormWidgetState extends State<GroupFormWidget> {
   Widget build(BuildContext context) {
     return GroupFormWidgetModelProvider(
       model: _model,
-      child: _GroupFormWidgetBody(),
+      child: const _GroupFormWidgetBody(),
     );
   }
 }
 
 class _GroupFormWidgetBody extends StatelessWidget {
-  const _GroupFormWidgetBody();
+  const _GroupFormWidgetBody({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Новая группа'),
+        title: const Text('Новая группа'),
       ),
       body: Center(
-        child: const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 15),
-          child: _GroupNameWidget(),
+        child: Container(
+          child: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: _GroupNameWidget(),
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => GroupFormWidgetModelProvider.read(context)
             ?.model
-            .saveGroup(
-                context), // получаем доступ к модели (объекту класса) и обращаюсь к методу
-        child: Icon(
-          Icons.done,
-        ),
+            .saveGroup(context),
+        child: const Icon(Icons.done),
       ),
     );
   }
 }
 
 class _GroupNameWidget extends StatelessWidget {
-  const _GroupNameWidget();
+  const _GroupNameWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

@@ -1,88 +1,95 @@
+import 'package:llf_todo_app/ui/widgets/tasks/tasks_widget_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:llf_todo_app/widgets/tasks/tasks_widget_model.dart';
 
 class TasksWidget extends StatefulWidget {
-  const TasksWidget({super.key});
+  final int groupKey;
+  const TasksWidget({
+    super.key,
+    required this.groupKey,
+  });
 
   @override
-  State<TasksWidget> createState() => _TasksWidgetState();
+  _TasksWidgetState createState() => _TasksWidgetState();
 }
 
 class _TasksWidgetState extends State<TasksWidget> {
-  TasksWidgetModel? _model;
+  late final TasksWidgetModel _model;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    if (_model == null) {
-      final groupKey = ModalRoute.of(context)!.settings.arguments
-          as int; // получениа аргументов из предыдущего экрана
-      _model = TasksWidgetModel(groupKey: groupKey);
-    }
+  void initState() {
+    super.initState();
+    _model = TasksWidgetModel(groupKey: widget.groupKey);
   }
 
   @override
   Widget build(BuildContext context) {
     return TasksWidgetModelProvider(
-      model: _model!,
-      child: TaskWidgetBody(),
+      model: _model,
+      child: const TasksWidgetBody(),
     );
   }
 }
 
-class TaskWidgetBody extends StatelessWidget {
-  const TaskWidgetBody({super.key});
+class TasksWidgetBody extends StatelessWidget {
+  const TasksWidgetBody({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final model = TasksWidgetModelProvider.watch(context)?.model;
-    final title = model?.group?.name ?? 'Задача';
+    final title = model?.group?.name ?? 'Задачи';
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
       ),
+      body: const _TaskListWidget(),
       floatingActionButton: FloatingActionButton(
         onPressed: () => model?.showForm(context),
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
-      body: _TaskListWidget(),
     );
   }
 }
 
 class _TaskListWidget extends StatelessWidget {
-  const _TaskListWidget();
+  const _TaskListWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final int groupsCount =
+    final groupsCount =
         TasksWidgetModelProvider.watch(context)?.model.tasks.length ?? 0;
     return ListView.separated(
       itemCount: groupsCount,
-      separatorBuilder: (BuildContext context, int index) {
-        return Divider(
-          height: 1,
-        );
-      },
       itemBuilder: (BuildContext context, int index) {
-        return _TasksListRowWidget(
-          taskListIndex: index,
-        );
+        return _TaskListRowWidget(taskListIndex: index);
+      },
+      separatorBuilder: (BuildContext context, int index) {
+        return const Divider(height: 1);
       },
     );
   }
 }
 
-class _TasksListRowWidget extends StatelessWidget {
+class _TaskListRowWidget extends StatelessWidget {
   final int taskListIndex;
-  const _TasksListRowWidget({required this.taskListIndex});
+  const _TaskListRowWidget({
+    Key? key,
+    required this.taskListIndex,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final model = TasksWidgetModelProvider.watch(context)!.model;
+    final model = TasksWidgetModelProvider.read(context)!.model;
     final task = model.tasks[taskListIndex];
+
+    final icon = task.isDone ? Icons.done : null;
+    final style = task.isDone
+        ? const TextStyle(
+            color: Colors.black,
+            decoration: TextDecoration.lineThrough,
+          )
+        : TextStyle(color: Colors.black);
+
     return Slidable(
       endActionPane: ActionPane(
         motion: BehindMotion(),
@@ -100,10 +107,10 @@ class _TasksListRowWidget extends StatelessWidget {
       child: ListTile(
         title: Text(
           task.text,
-          style: TextStyle(color: Colors.black),
+          style: style,
         ),
-        trailing: Icon(Icons.chevron_right),
-        onTap: () {},
+        trailing: Icon(icon),
+        onTap: () => model.doneToggle(taskListIndex),
       ),
     );
   }

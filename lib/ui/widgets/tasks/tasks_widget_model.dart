@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
-import 'package:hive_flutter/adapters.dart';
 import 'package:llf_todo_app/domain/entity/group.dart';
 import 'package:llf_todo_app/domain/entity/task.dart';
+import 'package:llf_todo_app/ui/navigation/main_navigation.dart';
+import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class TasksWidgetModel extends ChangeNotifier {
   int groupKey;
@@ -19,7 +19,10 @@ class TasksWidgetModel extends ChangeNotifier {
   }
 
   void showForm(BuildContext context) {
-    Navigator.of(context).pushNamed('/groups/tasks/form', arguments: groupKey);
+    Navigator.of(context).pushNamed(
+      MainNavigationRouteNames.tasksForm,
+      arguments: groupKey,
+    );
   }
 
   void _loadGroup() async {
@@ -39,19 +42,27 @@ class TasksWidgetModel extends ChangeNotifier {
     box.listenable(keys: <dynamic>[groupKey]).addListener(_readTasks);
   }
 
-  void deleteTask(int taskIndex) async {
-    await _group?.tasks?.deleteFromHive(taskIndex);
+  void deleteTask(int groupIndex) async {
+    await _group?.tasks?.deleteFromHive(groupIndex);
     await _group?.save();
+  }
+
+  void doneToggle(int groupIndex) async {
+    final task = group?.tasks?[groupIndex];
+    final currentState = task?.isDone ?? false;
+    task?.isDone = !currentState;
+    await task?.save();
+    notifyListeners();
   }
 
   void _setup() {
     if (!Hive.isAdapterRegistered(1)) {
       Hive.registerAdapter(GroupAdapter());
     }
+    _groupBox = Hive.openBox<Group>('goups_box');
     if (!Hive.isAdapterRegistered(2)) {
       Hive.registerAdapter(TaskAdapter());
     }
-    _groupBox = Hive.openBox<Group>('groups_box');
     Hive.openBox<Task>('tasks_box');
     _loadGroup();
     _setupListenTasks();
@@ -60,10 +71,9 @@ class TasksWidgetModel extends ChangeNotifier {
 
 class TasksWidgetModelProvider extends InheritedNotifier {
   final TasksWidgetModel model;
-
   const TasksWidgetModelProvider({
-    required this.model,
     Key? key,
+    required this.model,
     required Widget child,
   }) : super(
           key: key,

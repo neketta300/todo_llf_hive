@@ -1,5 +1,6 @@
 import 'package:hive/hive.dart';
 import 'package:llf_todo_app/domain/entity/task.dart';
+
 part 'group.g.dart';
 
 @HiveType(typeId: 1)
